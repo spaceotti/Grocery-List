@@ -3,7 +3,9 @@ import "./index.css";
 import Content from "./Content";
 import Header from "./Header";
 import Footer from "./Footer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import AddItem from "./AddItem";
+import SearchItem from "./SearchItem";
 
 export type ListItem = {
   id: number;
@@ -12,23 +14,16 @@ export type ListItem = {
 };
 
 const App: React.FC = () => {
-  const [items, setItems] = useState<ListItem[]>([
-    {
-      id: 1,
-      checked: true,
-      item: "One half pound bag of Cocoa Covered Almonds Unsalted",
-    },
-    {
-      id: 2,
-      checked: false,
-      item: "Item 2",
-    },
-    {
-      id: 3,
-      checked: false,
-      item: "Item 3",
-    },
-  ]);
+  const [items, setItems] = useState<ListItem[]>(() => {
+    const stored = localStorage.getItem("shoppinglist");
+    return stored ? JSON.parse(stored) : [];
+  });
+  const [newItem, setNewItem] = useState("");
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    localStorage.setItem("shoppinglist", JSON.stringify(items));
+  }, [items]);
 
   const handleCheck = (id: number) => {
     setItems((prevItems) =>
@@ -42,10 +37,24 @@ const App: React.FC = () => {
     setItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
+  const addItem = (item: string) => {
+    const id = Date.now();
+    const myNewItem = { id, checked: false, item };
+    setItems((prevItems) => [...prevItems, myNewItem]);
+  };
+
   return (
     <div className="App">
       <Header title="Groceries List" />
-      <Content items={items} onCheck={handleCheck} onDelete={handleDelete} />
+      <AddItem newItem={newItem} setNewItem={setNewItem} onAddItem={addItem} />
+      <SearchItem search={search} setSearch={setSearch} />
+      <Content
+        items={items.filter((item) =>
+          item.item.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+        )}
+        onCheck={handleCheck}
+        onDelete={handleDelete}
+      />
       <Footer items={items} />
     </div>
   );
