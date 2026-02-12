@@ -4,8 +4,8 @@ import LineItem from "./LineItem";
 
 type ItemListProps = {
   items: ListItem[];
-  onCheck: (id: number) => void;
-  onDelete: (id: number) => void;
+  onCheck: (id: string) => void;
+  onDelete: (id: string) => void;
 };
 
 const ItemList: React.FC<ItemListProps> = ({ items, onCheck, onDelete }) => {
