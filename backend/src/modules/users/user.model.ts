@@ -3,13 +3,20 @@ import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema(
   {
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      trim: true,
+      lowercase: true,
+      maxlength: 254,
+    },
     username: {
       type: String,
-      required: [true, "Username is required"],
-      unique: true,
       trim: true,
       minlength: 3,
       maxlength: 30,
+      default: null,
     },
     role: {
       type: String,
@@ -33,7 +40,7 @@ const userSchema = new mongoose.Schema(
 );
 
 //Optimize query performance at schema level
-userSchema.index({ username: 1 }, { unique: true });
+userSchema.index({ email: 1 }, { unique: true });
 
 userSchema.methods.setPassword = async function (plain: string) {
   const saltRounds = 12;

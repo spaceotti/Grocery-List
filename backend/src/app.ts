@@ -1,20 +1,32 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+
 import { errorMiddleware } from "./middlewares/error.middleware";
 import { AppError } from "./shared/errors/AppError";
+import { authRouter } from "./modules/auth/auth.routes";
+import usersRouter from "./modules/users/users.routes";
 
 const app = express();
 
 //GLOBAL MIDDLEWARE
 //1. Cors
-app.use(cors());
-//2. Body parser
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
+
+//2. Cookie-parser
+app.use(cookieParser());
+
+//3. Body-parser
 app.use(express.json({ limit: "10kb" }));
 
 //ROUTES
-app.get("/health", (req, res) => {
-  res.status(200).json({ ok: true });
-});
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/users", usersRouter);
 
 //404 handler
 app.use((req, _res, next) => {
