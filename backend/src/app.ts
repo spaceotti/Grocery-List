@@ -6,6 +6,7 @@ import { errorMiddleware } from "./middlewares/error.middleware";
 import { AppError } from "./shared/errors/AppError";
 import { authRouter } from "./modules/auth/auth.routes";
 import usersRouter from "./modules/users/users.routes";
+import listsRouter from "./modules/lists/lists.routes";
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use(express.json({ limit: "10kb" }));
 //ROUTES
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", usersRouter);
+app.use("/api/v1/lists", listsRouter);
 
 //404 handler
 app.use((req, _res, next) => {
