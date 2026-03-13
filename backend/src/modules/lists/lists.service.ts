@@ -96,3 +96,112 @@ export async function deleteListForOwner(input: {
     message: "List deleted successfully",
   };
 }
+
+//6. Add a new item to one specific list of the authenticated user
+export async function addItemToListForOwner(input: {
+  listId: string;
+  ownerId: string;
+  name: string;
+}) {
+  //Validate listId before querying MongoDB
+  if (!mongoose.Types.ObjectId.isValid(input.listId)) {
+    throw new AppError("Invalid list id", 400);
+  }
+  //Find the list that matches both: listId, ownerId
+  const list = await ListModel.findOne({
+    _id: input.listId,
+    owner: input.ownerId,
+  });
+  if (!list) {
+    throw new AppError("List not found", 404);
+  }
+  //Push a new item into the embedded items array
+  list.items.push({
+    name: input.name,
+  });
+  //Save updated list document
+  await list.save();
+  //Return created item
+  const newItem = list.items[list.items.length - 1];
+  return newItem;
+}
+
+//7. Update item of one specific list of the authenticated user
+export async function updateItemInListForOwner(input: {
+  listId: string;
+  itemId: string;
+  ownerId: string;
+  name?: string;
+  checked?: boolean;
+}) {
+  //Validate both Mongo ids before querying
+  if (!mongoose.Types.ObjectId.isValid(input.listId)) {
+    throw new AppError("Invalid list id", 400);
+  }
+  if (!mongoose.Types.ObjectId.isValid(input.itemId)) {
+    throw new AppError("Invalid item id", 400);
+  }
+  //Find the list that matches both: listId, ownerId
+  const list = await ListModel.findOne({
+    _id: input.listId,
+    owner: input.ownerId,
+  });
+  if (!list) {
+    throw new AppError("List not found", 404);
+  }
+  //Find the embedded item inside the list
+  const item = list.items.id(input.itemId);
+  //If no embedded item with this id exists
+  if (!item) {
+    throw new AppError("Item not found", 404);
+  }
+  //Update only the fields that were actually provided
+  if (input.name !== undefined) {
+    item.name = input.name;
+  }
+
+  if (input.checked !== undefined) {
+    item.checked = input.checked;
+  }
+  //Save the parent document so the embedded item changes persist
+  await list.save();
+  //Return the updated embedded item
+  return item;
+}
+
+//8. Remove item from one specific list of the authenticated user
+export async function removeItemFromListForOwner(input: {
+  listId: string;
+  itemId: string;
+  ownerId: string;
+}) {
+  //Validate both Mongo ids before querying
+  if (!mongoose.Types.ObjectId.isValid(input.listId)) {
+    throw new AppError("Invalid list id", 400);
+  }
+  if (!mongoose.Types.ObjectId.isValid(input.itemId)) {
+    throw new AppError("Invalid item id", 400);
+  }
+  //Find the list that matches both: listId, ownerId
+  const list = await ListModel.findOne({
+    _id: input.listId,
+    owner: input.ownerId,
+  });
+  if (!list) {
+    throw new AppError("List not found", 404);
+  }
+  //Find the embedded item inside the list
+  const item = list.items.id(input.itemId);
+  //If no embedded item with this id exists
+  if (!item) {
+    throw new AppError("Item not found", 404);
+  }
+  //Remove the embedded item from the document array
+  item.deleteOne();
+  //Save the updated parent document
+  await list.save();
+  //Return
+  return {
+    message: "Item deleted successfully",
+  };
+}

@@ -1,12 +1,30 @@
 import { Router } from "express";
 import { requireAuth } from "../../middlewares/requireAuth";
-import { create, getMine, getList, update, remove } from "./lists.controller";
+import {
+  create,
+  getMine,
+  getList,
+  update,
+  remove,
+  addItem,
+  updateItem,
+  removeItem,
+} from "./lists.controller";
 
-const router = Router();
+const listsRouter = Router();
 
-router.use(requireAuth);
+//Protect all list routes
+listsRouter.use(requireAuth);
 
-router.route("/").post(create).get(getMine);
-router.route("/:listId").get(getList).patch(update).delete(remove);
+//List routes
+listsRouter.route("/").post(create).get(getMine);
+listsRouter.route("/:listId").get(getList).patch(update).delete(remove);
 
-export default router;
+//Item routes inside the list
+listsRouter.route("/:listId/items").post(addItem);
+listsRouter
+  .route("/:listId/items/:itemId")
+  .patch(updateItem)
+  .delete(removeItem);
+
+export default listsRouter;

@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser";
 
 import { errorMiddleware } from "./middlewares/error.middleware";
 import { AppError } from "./shared/errors/AppError";
-import { authRouter } from "./modules/auth/auth.routes";
+import authRouter from "./modules/auth/auth.routes";
 import usersRouter from "./modules/users/users.routes";
 import listsRouter from "./modules/lists/lists.routes";
 
